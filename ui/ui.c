@@ -6,6 +6,7 @@
 #include <unistd.h>
 
 #define FIFO_PATH "fifos/ui_to_core"
+#define CORE_TO_UI "fifos/core_to_ui"
 
 int main()
 {
@@ -42,6 +43,24 @@ int main()
         write(fd, command, strlen(command) + 1);
 
         close(fd);
+
+        //recieve responds from core process
+        int response_fd = open(CORE_TO_UI,O_RDONLY);
+
+        if (response_fd == -1)
+        {
+            perror("Error opening Core-to-UI FIFO");
+            return 1;
+
+        }
+
+        char response[200];
+
+        read(response_fd, response,sizeof(response));
+
+        printf("[CORE RESPONSE] %s\n", response);
+
+        close(response_fd);
 
         // Stop UI
         if (strcmp(command, "exit") == 0)

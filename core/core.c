@@ -7,6 +7,7 @@
 
 #define UI_TO_CORE "fifos/ui_to_core"
 #define CORE_TO_LOGGER "fifos/core_to_logger"
+#define CORE_TO_UI "fifos/core_to_ui"
 
 void execute_command(char *command)
 {
@@ -76,6 +77,47 @@ int main()
 
         // Execute command
         execute_command(command);
+
+        //send response to ui process
+        int ui_fd = open(CORE_TO_UI, O_WRONLY);
+
+        if (ui_fd == -1)
+        {
+            perror ("Errror opening Core-to-UI FIFO");
+            return 1;
+        }
+
+        char response [200];
+
+        if (strcmp(command, "start")==0)
+        {
+            strcpy (response, "CPU execution started.");
+
+        }
+
+        else if (strcmp(command, "status") == 0)
+        {
+            strcpy(response, "CPU: RUNNING | Memory: ACTIVE | Stack: ACTIVE | Queue: ACTIVE");
+        }
+        
+        else if (strcmp(command, "stop")==0)
+        {
+            strcpy(response, "CPU execution stopped. ");
+
+        }
+        else if (strcmp(command, "exit")==0)
+        {
+            strcpy(response , "Core Process shutting down.");
+
+        }
+        else{ 
+            strcpy(response, "Unknown command.");
+
+        }
+
+        write (ui_fd, response , strlen(response)+ 1);
+
+        close(ui_fd);
 
         // Prepare log message
         snprintf(log_message, sizeof(log_message),
