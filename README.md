@@ -22,7 +22,6 @@ The processes communicate using **POSIX Named Pipes (FIFO)**.
 | Isha | Team Leader / Integration |
 
 ---
-
 ## Architecture
 
 ```mermaid
@@ -48,14 +47,17 @@ flowchart LR
 
     CORE -->|Log message| F3
     F3 --> LOG
-```
-##
+
     CORE --> CPU[CPU]
     CORE --> MEM[Memory]
     CORE --> STACK[Stack]
     CORE --> QUEUE[Queue]
 
-    LOG --> FILE["execution.log"] 
+    LOG --> FILE["execution.log"]
+```
+
+
+---
 
 Communication Flow
 1. The user enters a command through the UI Process.
@@ -102,8 +104,10 @@ execution.log
 
 The log contains information about commands executed by the Core Process.
 
- ## Project Structure
 
+## Project Structure
+
+```text
 3-process-os-simulator/
 │
 ├── ui/
@@ -119,20 +123,35 @@ The log contains information about commands executed by the Core Process.
 │   └── .gitkeep
 │
 ├── benchmark/
-│   └── benchmark.c
+│   ├── benchmark.c
+│   └── standalone.c
 │
 ├── docs/
 │   ├── IPC_Justification.md
-│   └── IPC_Test_Cases.md
+│   ├── IPC_Test_Cases.md
+│   └── Benchmark_Results.md
 │
+├── launcher.c
+├── Makefile
+├── benchmark.sh
+├── simulator.log
 ├── .gitignore
 └── README.md
+```
 
-Compilation
-Compile the three processes using GCC:
-gcc ui/ui.c -o ui/ui
-gcc core/core.c -o core/core
-gcc logger/logger.c -o logger/logger
+## Compilation
+
+The project can be compiled using the Makefile:
+
+```bash
+make
+```
+
+To remove compiled files:
+
+```bash
+make clean
+```
 
 Creating the FIFOs
 The required FIFO files can be created using:
@@ -142,26 +161,51 @@ mkfifo fifos/core_to_logger
 
 The FIFOs are runtime communication channels and are not stored as normal source files in GitHub.
 
-Running the Simulator
+## Running the Simulator
+
+### Using Launcher
+
+The simulator can be started using the launcher:
+
+```bash
+./launcher
+```
+
+The launcher starts the UI, Core and Logger processes.
+
+### Manual Execution
+
+The processes can also be started manually.
+
 Start the Logger Process first:
+
+```bash
 ./logger/logger
+```
 
 Then start the Core Process:
+
+```bash
 ./core/core
+```
 
 Finally start the UI Process:
+
+```bash
 ./ui/ui
+```
 
-Enter commands at the UI prompt.
+Enter commands at the UI prompt:
 
-Example:
+```text
 start
 status
 stop
 exit
+```
 
 Example Output
-UI Process
+```UI Process
 Enter command: start
 [CORE RESPONSE] CPU execution started.
 
@@ -170,11 +214,13 @@ Enter command: status
 
 Enter command: stop
 [CORE RESPONSE] CPU execution stopped.
+```
 
-Logger Process
+```Logger Process
 [LOGGER] Core executed command: start
 [LOGGER] Core executed command: status
 [LOGGER] Core executed command: stop
+```
 
 Benchmark
 A benchmark program is included to measure execution time.
@@ -190,14 +236,14 @@ Testing
 The following IPC test cases are considered:
 
 ---
-|Test Case|	|Input|	|Expected Result|
-|---|---|
-|TC01|	|start|	|Core starts CPU execution|
-|TC02|	|status|	|CPU, Memory, Stack and Queue status displayed|
-|TC03|	|stop|	|Core stops CPU execution|
-|TC04|	|exit|	|Processes shut down correctly|
-|TC05|	|Invalid command|	|Core returns Unknown command.|
-|TC06|	|Logging|	|Core command is received by Logger|
+| Test Case | Input | Expected Result |
+|---|---|---|
+| TC01 | `start` | Core starts CPU execution |
+| TC02 | `status` | CPU, Memory, Stack and Queue status displayed |
+| TC03 | `stop` | Core stops CPU execution |
+| TC04 | `exit` | Processes shut down correctly |
+| TC05 | Invalid command | Core returns `Unknown command.` |
+| TC06 | Logging | Core command is received by Logger |
 ---
 
 GitHub / Integration
