@@ -1,5 +1,6 @@
 CC = gcc
 CFLAGS = -Wall -Wextra -std=c99
+.PHONY: all ui core logger launch clean
 
 all: ui core logger launcher
 
